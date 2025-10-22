@@ -3,6 +3,7 @@ package com.odk.Entity;
 import com.odk.Entity.Activite;
 import com.odk.Entity.Utilisateur;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.odk.Enum.StatutValidation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,6 +34,7 @@ public class ActiviteValidation {
 
     @ManyToOne
     @JoinColumn(name = "activite_id")
+    @JsonIgnore
     private Activite activite;
     
     @ManyToOne

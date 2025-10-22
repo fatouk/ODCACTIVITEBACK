@@ -53,8 +53,10 @@ public class EtapeController {
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.OK)
 
-    public List<EtapeDTO> getAllEtapes() {
-        return etapeService.getAllEtapes(); // Utilise le service pour récupérer les étapes sous forme de DTO
+    public ResponseEntity<List<EtapeDTO>> getAllEtapes() {
+        List<EtapeDTO> letap=etapeService.getAllEtapes();
+        System.out.println("mes etapes==============="+ letap);
+        return ResponseEntity.ok(letap); // Utilise le service pour récupérer les étapes sous forme de DTO
     }
 
     @PatchMapping("/{id}")

@@ -65,16 +65,16 @@ public class ActiviteValidationService{
     }
 
     // Télécharger le fichier d'une validation
-    public byte[] getFichier(Long id) {
-        ActiviteValidation validation = validationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Validation non trouvée"));
-
-        if (validation.getFichierChiffre() == null) {
-            throw new RuntimeException("Pas de fichier associé à cette validation");
-        }
-
-        return validation.getFichierChiffre();
-    }
+//    public byte[] getFichier(Long id) {
+//        ActiviteValidation validation = validationRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Validation non trouvée"));
+//
+//        if (validation.getFichierChiffre() == null) {
+//            throw new RuntimeException("Pas de fichier associé à cette validation");
+//        }
+//
+//        return validation.getFichierChiffre();
+//    }
 
     public String getNomFichier(Long id) {
         ActiviteValidation validation = validationRepository.findById(id)

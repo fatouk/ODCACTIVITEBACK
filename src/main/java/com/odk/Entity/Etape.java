@@ -33,11 +33,13 @@ public class Etape {
     @OneToMany(mappedBy = "etapeResultat", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("etapeResultatRef")
     private List<Participant> listeResultat = new ArrayList<>();
+    
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dateDebut;
+    
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date dateFin;
-
+    
     private Statut statut;
 
     @OneToMany(mappedBy = "etape", cascade = CascadeType.ALL, orphanRemoval = true)

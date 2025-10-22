@@ -5,6 +5,9 @@
 package com.odk.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.odk.Entity.ActiviteValidation;
+import com.odk.Entity.Utilisateur;
+import com.odk.Repository.ActiviteValidationRepository;
 import com.odk.Service.Interface.Service.ActiviteValidationService;
 import com.odk.dto.ActiviteValidationDTO;
 import java.util.Date;
@@ -35,6 +38,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class ActiviteValidationController {
   @Autowired
     private ActiviteValidationService activiteValidationService;
+    @Autowired
+    private ActiviteValidationRepository activiteValidationRepository;
   @Autowired
   private ObjectMapper objectMapper;
   
@@ -50,7 +55,7 @@ public class ActiviteValidationController {
             @RequestPart("validation") String validationJson,
             @RequestPart(value = "fichier", required = false) MultipartFile fichier) {
 
-        try {
+        try {        
             // Convertir la chaîne JSON reçue en DTO
             ActiviteValidationDTO dto = objectMapper.readValue(validationJson, ActiviteValidationDTO.class);
                dto.setDate(new Date()); 
@@ -78,16 +83,23 @@ public class ActiviteValidationController {
     }
 
     // Télécharger le fichier d'une validation
-    @GetMapping("/{id}/fichier")
-    //@PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
+        @GetMapping("/{id}/fichier")
+           //@PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     public ResponseEntity<byte[]> telechargerFichier(@PathVariable Long id) {
-        byte[] fichier = activiteValidationService.getFichier(id);
-        String nomFichier = activiteValidationService.getNomFichier(id);
+    ActiviteValidation validation = activiteValidationRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Validation non trouvée"));
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomFichier + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(fichier);
+    byte[] fichier = validation.getFichierChiffre(); // @Lob, contenu réel du fichier
+    String nomFichier = validation.getFichierjoint(); // nom du fichier original
+
+    if (fichier == null || fichier.length == 0) {
+        return ResponseEntity.noContent().build();
     }
-    
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nomFichier + "\"")
+        .header("Access-Control-Expose-Headers", "Content-Disposition")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(fichier);
+}
 }

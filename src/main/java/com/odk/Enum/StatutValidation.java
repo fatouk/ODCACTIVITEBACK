@@ -1,9 +1,9 @@
 package com.odk.Enum;
 
 public enum StatutValidation {
-    Validé("VALIDE"),
+    Valider("Valider"),
     En_Attente("En_Attente"),
-    Rejeté("REJETER")
+    Rejeter("Rejeter")
     ;
 
     private final String value;
