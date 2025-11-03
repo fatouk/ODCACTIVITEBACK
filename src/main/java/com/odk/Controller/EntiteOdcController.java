@@ -10,7 +10,10 @@ import com.odk.Repository.TypeActiviteRepository;
 import com.odk.Service.Interface.Service.EntiteOdcService;
 import com.odk.Service.Interface.Service.FileStorage;
 import com.odk.Service.Interface.Service.UtilisateurService;
+import com.odk.dto.ActiviteValidationDTO;
 import com.odk.dto.EntiteDTO;
+import java.util.Collections;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -24,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -40,7 +44,7 @@ public class EntiteOdcController {
     private TypeActiviteRepository typeActiviteRepository;
 
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     public ResponseEntity<Entite> ajout(
             @RequestPart("entiteOdc") String entiteOdcJson,
@@ -53,9 +57,12 @@ public class EntiteOdcController {
             Entite entite = objectMapper.readValue(entiteOdcJson, Entite.class);
 
             // Sauvegarder le fichier image
+//            String imagePath = fileStorage.saveImage(logo);
+//            entite.setLogo(imagePath);
+            if (logo != null) {
             String imagePath = fileStorage.saveImage(logo);
             entite.setLogo(imagePath);
-
+        }
             // Récupérer l'utilisateur par ID
             Optional<Utilisateur> utilisateurOpt = utilisateurService.findById(utilisateurId);
             // Vérifier si l'utilisateur est présent
@@ -69,7 +76,7 @@ public class EntiteOdcController {
 
             // Récupérer les TypeActivite par leurs IDs
             List<TypeActivite> typeActivites = typeActiviteRepository.findAllById(typeActiviteIds);
-            entite.setTypeActivites(typeActivites);
+            entite.setTypeActivitesIds(typeActivites);
 
             // Ajouter l'entité
             Entite createdFormation = entiteOdcService.add(entite);
@@ -90,6 +97,7 @@ public class EntiteOdcController {
 //          return entiteOdcService.allList();
 //    }
     @GetMapping
+    @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     public ResponseEntity<List<EntiteDTO>> ListerEntite2(){
         List<EntiteDTO>entities=entiteOdcService.allList();
         System.out.println("je suis dans entite========="+entities);
@@ -104,67 +112,87 @@ public class EntiteOdcController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('SUPERADMIN')")
-    public ResponseEntity<Entite> modifier(
-            @PathVariable("id") Long entiteId,
-            @RequestPart("entiteOdc") String entiteOdcJson,
-            @RequestPart(value = "logo", required = false) MultipartFile logo,
-            @RequestParam(value = "utilisateurId", required = false) Long utilisateurId,
-            @RequestParam("typeActiviteIds") List<Long> typeActiviteIds){
+    
+    
+    //new de update
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        public ResponseEntity<?> modifier(
+        @PathVariable("id") Long entiteId,
+        @RequestPart("entite") String entite,       
+        @RequestPart(value = "logo", required = false) MultipartFile logo) {
+    try {
+        System.out.println("✅ Requête reçue pour l'entité " + entiteId);
+
+        // Désérialisation manuelle du JSON
+        EntiteDTO entiteDTO = new ObjectMapper().readValue(entite, EntiteDTO.class);       
+
+        // Récupération de l'entité existante
+        Entite entite1 = entiteOdcService.findById(entiteId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entité non trouvée"));
+
+        // Mise à jour des champs
+        entite1.setNom(entiteDTO.getNom());
+        entite1.setDescription(entiteDTO.getDescription());
+
+        if (logo != null) {
+            String imagePath = fileStorage.saveImage(logo);
+            entite1.setLogo(imagePath);
+        }
+        if (entiteDTO.getResponsable() != null) {
+            utilisateurService.findById(entiteDTO.getResponsable()).ifPresent(utilisateur -> {
+        if (utilisateur.getRole() != null && 
+            "PERSONNEL".equalsIgnoreCase(utilisateur.getRole().getNom())) {
+            entite1.setResponsable(utilisateur);
+        } else {
+            System.out.println("⚠️ Utilisateur sans rôle ou rôle non 'PERSONNEL', ignoré.");
+        }
+    });
+}
+        if(entiteDTO.getTypeActivitesIds() != null && !entiteDTO.getTypeActivitesIds().isEmpty() ){
+            List<TypeActivite> typeActivites = typeActiviteRepository.findAllById(entiteDTO.getTypeActivitesIds());
+            entite1.setTypeActivitesIds(typeActivites);
+        }
+        
+        Entite updated = entiteOdcService.update(entite1, entiteId);
+        return ResponseEntity.ok(updated);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.internalServerError()
+                .body(Map.of("message", "Erreur interne : " + e.getMessage()));
+    }
+}
+
+    //Fin
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    //@PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")  
+    public ResponseEntity<?> createEntity(
+            @RequestPart("entite") EntiteDTO dto,
+            @RequestPart(value = "fichier", required = false) MultipartFile fichier) {
+
         try {
-            // Use 'entiteId' from the path variable
-            Optional<Entite> entiteOpt = entiteOdcService.findById(entiteId);
-            if (!entiteOpt.isPresent()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Entité non trouvée avec l'ID : " + entiteId);
+                                System.out.println("fichierrrrrrro==="+fichier);
+
+
+        // Récupération de l'entité existante
+       
+            // Sauvegarde du fichier si présent
+            if (fichier != null && !fichier.isEmpty()) {
+                String imagePath = fileStorage.saveImage(fichier);
+                System.out.println("lien logo==="+imagePath);
+                dto.setLogo(imagePath);
             }
 
-            Entite entite = entiteOpt.get();
+            EntiteDTO saved = entiteOdcService.ajouter(dto, fichier);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
-            // Convert JSON to Entite object
-            Entite updatedEntite = objectMapper.readValue(entiteOdcJson, Entite.class);
-
-            // Handle logo update if provided
-            if (logo != null) {
-                String imagePath = fileStorage.saveImage(logo);
-                entite.setLogo(imagePath);
-            }
-
-            // Handle utilisateur update if provided
-            if (utilisateurId != null) {
-                Optional<Utilisateur> utilisateurOpt = utilisateurService.findById(utilisateurId);
-                if (utilisateurOpt.isPresent()) {
-                    Utilisateur utilisateur = utilisateurOpt.get();
-                    if (utilisateur.getRole().getNom().equals("PERSONNEL")) {
-                        entite.setResponsable(utilisateur);
-                    } else {
-                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Seuls les utilisateurs ayant le rôle 'Personnel' peuvent être responsables.");
-                    }
-                } else {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé avec l'ID : " + utilisateurId);
-                }
-            }
-
-            // Update other fields
-            entite.setNom(updatedEntite.getNom());
-            entite.setDescription(updatedEntite.getDescription());
-            // Update other necessary fields here
-
-            // Récupérer les TypeActivite par leurs IDs
-            List<TypeActivite> typeActivites = typeActiviteRepository.findAllById(typeActiviteIds);
-            entite.setTypeActivites(typeActivites);
-
-            // Save changes
-            Entite updatedFormation = entiteOdcService.update(entite, entiteId);
-            return ResponseEntity.ok(updatedFormation);
-
-        } catch (JsonProcessingException e) {
-            return ResponseEntity.badRequest().body(null);  // JSON conversion error
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);  // General errors
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Erreur interne : " + e.getMessage()));
         }
     }
-
+    
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)

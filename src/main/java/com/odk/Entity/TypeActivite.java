@@ -18,7 +18,7 @@ public class TypeActivite {
     private Long id;
     private String type;
 
-    @ManyToMany(mappedBy = "typeActivites")
+    @ManyToMany(mappedBy = "typeActivitesIds")
     @JsonIgnore // Ignorer la liste des entités lors de la sérialisation de TypeActivite
 
     private List<Entite> entites;

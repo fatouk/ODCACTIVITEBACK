@@ -24,15 +24,17 @@ public class ActiviteValidationDTO {
     private String commentaire;
     private Date date;
     private StatutValidation statut;
-    private String fichierjoint; 
+    private String fichierjoint;
+    private Long envoyeurId;
     private Long activiteId;     
     private Long superviseurId;  
-    public ActiviteValidationDTO(Long id, String commentaire, Date date, StatutValidation statut, String fichierjoint, Long activiteId, Long superviseurId) {
+    public ActiviteValidationDTO(Long id, String commentaire, Date date, StatutValidation statut, String fichierjoint,Long envoyeurId, Long activiteId, Long superviseurId) {
         this.id = id;
         this.commentaire = commentaire;
         this.date = date;
         this.statut = statut;
         this.fichierjoint = fichierjoint;
+        this.envoyeurId=envoyeurId;
         this.activiteId = activiteId;
         this.superviseurId = superviseurId;
     }

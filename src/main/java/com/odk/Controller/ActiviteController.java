@@ -37,7 +37,6 @@ public class ActiviteController {
     @PreAuthorize("hasRole('PERSONNEL')")
     public Activite ajouter(@RequestBody Activite activite) {
         try {
-            System.out.println("actiiiiiiiii========="+activite.getSalleId());
             return activiteService.add(activite);
         } catch (ResponseStatusException e) {
             throw e; // Laissez passer l'exception si elle provient de la méthode add
@@ -87,6 +86,7 @@ public class ActiviteController {
                             etapes != null && !etapes.isEmpty() ? etapes.get(0) : null, // Prend la première étape
                             activite.getEntite(),
                             activite.getSalleId(),
+                            activite.getCreatedBy(),
                             activite.getTypeActivite(),
                             listeDebutDTO,
                             listeResultatDTO
@@ -171,6 +171,7 @@ public class ActiviteController {
                                         .orElse(null),
                                 activite.getEntite(),
                                 activite.getSalleId(),
+                                activite.getCreatedBy(),
                                 activite.getTypeActivite(),
                                 listeDebutDTO,
                                 listeResultatDTO
@@ -221,6 +222,7 @@ public class ActiviteController {
                 validation.getDate(),
                 validation.getStatut(),       // doit être StatutValidation
                 validation.getFichierjoint(),
+                validation.getEnvoyeurId(),
                 activite.getId(),             // activiteId
                 validation.getSuperviseur().getId())).toList();
 
@@ -237,6 +239,7 @@ public class ActiviteController {
             activite.getObjectifParticipation(),
             activite.getEntite(),
             activite.getSalleId(),
+            activite.getCreatedBy(),
             activite.getTypeActivite()
         );
     }).toList();
@@ -255,11 +258,12 @@ public class ActiviteController {
         // Mapper les validations associées
         List<ActiviteValidationDTO> validationsDTO = activite.getValidations().stream()
             .map(validation -> new ActiviteValidationDTO(
-               validation.getId(),
+                validation.getId(),
                 validation.getCommentaire(),
                 validation.getDate(),
                 validation.getStatut(),
                 validation.getFichierjoint(),
+                validation.getEnvoyeurId(),
                 activite.getId(),
                 validation.getSuperviseur().getId())).toList();
 
@@ -276,6 +280,7 @@ public class ActiviteController {
             activite.getObjectifParticipation(),
             activite.getEntite(),
             activite.getSalleId(),
+            activite.getCreatedBy(),
             activite.getTypeActivite()
         );
     }).toList();

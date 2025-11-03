@@ -36,7 +36,7 @@ public class Entite {
             joinColumns = @JoinColumn(name = "entite_id"),
             inverseJoinColumns = @JoinColumn(name = "type_activite_id")
     )
-    private List<TypeActivite> typeActivites;
+    private List<TypeActivite> typeActivitesIds;
 
     // Ajout d'un constructeur prenant un ID pour la désérialisation
     public Entite(Long id) {

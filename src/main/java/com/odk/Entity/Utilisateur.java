@@ -37,6 +37,7 @@ public class Utilisateur implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
+    @JsonIgnore
     private Role role;
 
     @ManyToOne

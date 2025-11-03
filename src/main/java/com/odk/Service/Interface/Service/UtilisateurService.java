@@ -113,7 +113,7 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
         emailBodyBuilder.append("</html>");
 
         String emailBody = emailBodyBuilder.toString();
-        emailService.sendSimpleEmail(utilisateur.getEmail(), "Confirmation de création de compte", emailBody);
+//        emailService.sendSimpleEmail(utilisateur.getEmail(), "Confirmation de création de compte", emailBody);
 
 
         return savedUtilisateur;

@@ -29,8 +29,8 @@ public class ActiviteValidation {
     @Lob
     @Column(name = "fichier_chiffre", columnDefinition = "LONGBLOB")
     private byte[] fichierChiffre;
-
     private String fichierjoint; // Pour garder le nom original
+    private Long envoyeurId;
 
     @ManyToOne
     @JoinColumn(name = "activite_id")
@@ -39,6 +39,7 @@ public class ActiviteValidation {
     
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
+    @JsonIgnore
     private Utilisateur superviseur;
    
   

@@ -15,6 +15,6 @@ public class EntiteDTO {
     private String nom;
     private String logo;
     private String description;
-    private Utilisateur responsable;              // uniquement l'ID du responsable
-    private List<Long> typeActiviteIds;      // uniquement les IDs des types d'activités
+    private Long responsable;              // uniquement l'ID du responsable
+    private List<Long> typeActivitesIds;      // uniquement les IDs des types d'activités
 }

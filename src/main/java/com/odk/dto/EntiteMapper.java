@@ -15,8 +15,8 @@ public class EntiteMapper {
         if (entite == null) return null;
 
         List<Long> typeActiviteIds = null;
-        if (entite.getTypeActivites() != null) {
-            typeActiviteIds = entite.getTypeActivites()
+        if (entite.getTypeActivitesIds()!= null) {
+            typeActiviteIds = entite.getTypeActivitesIds()
                     .stream()
                     .map(TypeActivite::getId)
                     .collect(Collectors.toList());
@@ -29,7 +29,7 @@ public class EntiteMapper {
                 entite.getNom(),
                 entite.getLogo(),
                 entite.getDescription(),
-                entite.getResponsable(),
+                responsableId,
                 typeActiviteIds
         );
     }
@@ -46,17 +46,17 @@ public class EntiteMapper {
 
         if (dto.getResponsable() != null) {
             Utilisateur responsable = new Utilisateur();
-            responsable.setId(dto.getResponsable().getId());
+            responsable.setId(dto.getResponsable());
             entite.setResponsable(responsable);
         }
 
-        if (dto.getTypeActiviteIds() != null) {
-            List<TypeActivite> typeActivites = dto.getTypeActiviteIds().stream().map(id -> {
+        if (dto.getTypeActivitesIds() != null) {
+            List<TypeActivite> typeActivites = dto.getTypeActivitesIds().stream().map(id -> {
                 TypeActivite ta = new TypeActivite();
                 ta.setId(id);
                 return ta;
             }).collect(Collectors.toList());
-            entite.setTypeActivites(typeActivites);
+            entite.setTypeActivitesIds(typeActivites);
         }
 
         return entite;

@@ -7,11 +7,13 @@ import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.CrudService;
 import com.odk.dto.EntiteDTO;
 import com.odk.dto.EntiteMapper;
+import java.io.IOException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +24,25 @@ public class EntiteOdcService implements CrudService<Entite, Long> {
     @Override
     public Entite add(Entite entiteOdc) {
         return entiteOdcRepository.save(entiteOdc);
+    }
+   
+    public Entite add2(Entite entiteOdc,MultipartFile File) {        
+        return entiteOdcRepository.save(entiteOdc);
+    }
+    public EntiteDTO ajouter(EntiteDTO dto, MultipartFile fichier) throws IOException {
+        Entite entite = EntiteMapper.toEntity(dto);
+
+//        if (fichier != null && !fichier.isEmpty()) { 
+//            
+//                String imagePath = fileStorage.saveImage(fichier);
+//                System.out.println("lien logo==="+imagePath);
+//                dto.setLogo(imagePath);
+//            
+//            
+//        }
+
+        Entite saved = entiteOdcRepository.save(entite);
+        return EntiteMapper.toDto(saved);
     }
 
     @Override
@@ -66,8 +87,8 @@ public class EntiteOdcService implements CrudService<Entite, Long> {
             if (entity.getResponsable() != null) {
                 existingEntite.setResponsable(entity.getResponsable());
             }
-            if (entity.getTypeActivites() != null) {
-                existingEntite.setTypeActivites(entity.getTypeActivites());
+            if (entity.getTypeActivitesIds()!= null) {
+                existingEntite.setTypeActivitesIds(entity.getTypeActivitesIds());
             }
 
             // Sauvegarder les modifications dans la base de données
