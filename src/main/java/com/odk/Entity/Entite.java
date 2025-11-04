@@ -27,7 +27,7 @@ public class Entite {
 
     @ManyToOne
     @JoinColumn(name = "responsable_id")
-    @JsonIgnore
+   @JsonIgnore
     private Utilisateur responsable;
 
     @ManyToMany

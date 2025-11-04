@@ -3,6 +3,7 @@ package com.odk.Service.Interface.Service;
 import com.odk.Entity.Entite;
 import com.odk.Entity.Role;
 import com.odk.Entity.Utilisateur;
+import com.odk.Repository.EntiteOdcRepository;
 import com.odk.Repository.RoleRepository;
 import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.CrudService;
@@ -36,7 +37,7 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
     private PasswordEncoder passwordEncoder;
     private EmailService emailService;
     private RoleRepository roleRepository;
-
+    private EntiteOdcRepository entiteOdcRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -45,6 +46,10 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
 
     @Override
     public Utilisateur add(Utilisateur utilisateur) {
+        
+        System.out.println("NOM========="+utilisateur.getNom());
+        System.out.println("ENTITE========="+utilisateur.getEntite().getNom());
+        System.out.println("rolE========="+utilisateur.getRole().getNom());
         if (!UtilService.isValidEmail(utilisateur.getEmail())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Votre mail est invalide");
         }
@@ -118,7 +123,45 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
 
         return savedUtilisateur;
     }
+    public UtilisateurDTO add2(UtilisateurDTO userdto){
+    if (!UtilService.isValidEmail(userdto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Votre mail est invalide");
+        }
+// Définir un mot de passe par défaut si aucun mot de passe n'est fourni
+        String defaultPassword = "motdepasse123";
+        String rawPassword = userdto.getPassword() != null ? userdto.getPassword() : defaultPassword;
 
+        // Encoder le mot de passe pour le stockage
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        userdto.setPassword(encodedPassword);
+
+        // Vérifiez si le rôle est null avant d'accéder à ses propriétés
+        if (userdto.getRole() == null || userdto.getRole().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Le rôle ne peut pas être null");
+        }
+
+        // Rechercher le rôle par son nom
+        Role role = roleRepository.findById(userdto.getRole().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le rôle " + userdto.getRole().getId() + " n'existe pas"));
+//                userdto.setRole(role);
+          Utilisateur user=new Utilisateur();
+          user.setNom(userdto.getNom());
+          user.setPrenom(userdto.getPrenom());
+          user.setEmail(userdto.getEmail());
+          user.setGenre(userdto.getGenre());
+          user.setPassword(encodedPassword);
+          user.setPhone(userdto.getPhone());
+          user.setEntite(userdto.getEntite());          
+          roleRepository.findById(userdto.getRole().getId()).ifPresent(user::setRole);
+          entiteOdcRepository.findById(userdto.getEntite().getId()).ifPresent(user::setEntite);
+              Utilisateur usersaved=utilisateurRepository.save(user);
+              UtilisateurDTO dtosaved=new UtilisateurDTO(usersaved.getId(),  usersaved.getNom(), usersaved.getPrenom(), usersaved.getEmail(), usersaved.getGenre(),usersaved.getPassword(), usersaved.getPhone(), usersaved.getRole(), usersaved.getEntite());
+         return dtosaved;      
+        }
+    
+   
+    
+    
     @Override
     public List<Utilisateur> List() {
         return utilisateurRepository.findAll();
@@ -138,8 +181,10 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
                 utilisateur.getEmail(),
                 utilisateur.getPhone(),
                 utilisateur.getGenre(),
+                 utilisateur.getPassword(),
                 utilisateur.getRole(),
                 (Entite) utilisateur.getEntite()
+               
         );
     }
 
@@ -175,6 +220,38 @@ public class UtilisateurService implements UserDetailsService, CrudService<Utili
                     return utilisateurRepository.save(p);
                 }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Votre id n'existe pas"));
     }
+    
+    
+    public Utilisateur updateDTO(UtilisateurDTO utilisateur, Long id) {
+        return utilisateurRepository.findById(id).map(
+                p -> {
+                    p.setNom(utilisateur.getNom());
+                    p.setEmail(utilisateur.getEmail());
+                    p.setPrenom(utilisateur.getPrenom());
+                    p.setPhone(utilisateur.getPhone());
+                    p.setGenre(utilisateur.getGenre());
+
+                    // Vérifiez si le rôle est null avant de le définir
+                     roleRepository.findById(utilisateur.getRole().getId()).ifPresent(p::setRole);
+                     entiteOdcRepository.findById(utilisateur.getEntite().getId()).ifPresent(p::setEntite);
+//                    if (utilisateur.getRole()!= null) {
+//                        p.setRole(utilisateur.getRole());
+//                    }
+//
+//                    if (utilisateur.getEntite().getId() != null) {
+//                        p.setEntite(utilisateur.getEntite());
+//                    }
+
+                    // Si le mot de passe est modifié, encodez-le
+                    if (utilisateur.getPassword() != null) {
+                        p.setPassword(passwordEncoder.encode(utilisateur.getPassword()));
+                    }
+
+                    return utilisateurRepository.save(p);
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Votre id n'existe pas"));
+    }
+    
+    
 
     @Override
     public void delete(Long id) {

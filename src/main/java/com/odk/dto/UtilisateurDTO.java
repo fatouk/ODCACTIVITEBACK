@@ -16,6 +16,7 @@ public class UtilisateurDTO {
     private String email;
     private String phone;
     private String genre;
+    private String password;
     private Role role;
     private Entite entite;
 }

@@ -33,9 +33,8 @@ public class UtilisateurController {
     @PostMapping
     @PreAuthorize("hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public Utilisateur ajouter(@RequestBody Utilisateur utilisateur){
-
-        return utilisateurService.add(utilisateur);
+    public UtilisateurDTO ajouter(@RequestBody UtilisateurDTO utilisateur){
+        return utilisateurService.add2(utilisateur);
     }
 
     @GetMapping
@@ -56,8 +55,8 @@ public class UtilisateurController {
     @PatchMapping("{id}")
     @PreAuthorize("hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public Utilisateur Modifier(@PathVariable Long id, @RequestBody Utilisateur utilisateur ){
-        return utilisateurService.update(utilisateur,id);
+    public Utilisateur Modifier(@PathVariable Long id, @RequestBody UtilisateurDTO utilisateur ){
+        return utilisateurService.updateDTO(utilisateur,id);
     }
 
     @DeleteMapping("{id}")
