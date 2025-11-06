@@ -1,6 +1,7 @@
 package com.odk.Controller;
 
 import com.odk.Entity.TypeActivite;
+import com.odk.Entity.Utilisateur;
 import com.odk.Service.Interface.Service.TypeActiviteService;
 import com.odk.dto.TypeActiviteDTO;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,15 @@ import java.util.List;
 public class TypeActiviteController {
 
     private TypeActiviteService typeActiviteService;
+    
+    @PostMapping("/{iduser}")
+    @PreAuthorize("hasRole('PERSONNEL')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<TypeActivite> addTypeActiviteId(@PathVariable Long iduser,@RequestBody TypeActivite typeActivite) {
+        TypeActivite saveTypeActivite = typeActiviteService.addIdUser(iduser,typeActivite);
+        return ResponseEntity.ok(saveTypeActivite);
+    }
+
 
     @PostMapping
     @PreAuthorize("hasRole('PERSONNEL')")
@@ -29,7 +39,7 @@ public class TypeActiviteController {
     @GetMapping
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    public List<TypeActivite> getAllEtapes() {
+    public List<TypeActivite> getAllTypes() {
         return typeActiviteService.List(); // Utilise le service pour récupérer les étapes sous forme de DTO
     }
 
@@ -43,8 +53,16 @@ public class TypeActiviteController {
     @PreAuthorize("hasRole('PERSONNEL')")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<TypeActivite> Modifier(@PathVariable Long id, @RequestBody TypeActivite typeActivite ){
-
         TypeActivite updateType =  typeActiviteService.update(typeActivite,id);
+        return ResponseEntity.ok(updateType);
+    }
+    
+    
+    @PatchMapping("/{id}/{iduser}")
+    @PreAuthorize("hasRole('PERSONNEL')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<TypeActivite> ModifierId(@PathVariable Long id,@PathVariable Long iduser, @RequestBody TypeActivite typeActivite ){
+        TypeActivite updateType =  typeActiviteService.updateId(typeActivite,id,iduser);
         return ResponseEntity.ok(updateType);
     }
 

@@ -16,10 +16,12 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,4 +104,21 @@ public class ActiviteValidationController {
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(fichier);
 }
+    
+    @DeleteMapping("/{id}")
+public ResponseEntity<?> delete(@PathVariable Long id) {
+    try {
+        if (!activiteValidationRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                 .body(Map.of("message", "Entité introuvable"));
+        }
+
+        activiteValidationRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("message", "Validation supprimée avec succès"));
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(Map.of("message", "Erreur interne : " + e.getMessage()));
+    }
+}
+
 }

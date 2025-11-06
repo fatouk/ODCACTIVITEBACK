@@ -1,7 +1,9 @@
 package com.odk.Service.Interface.Service;
 
 import com.odk.Entity.TypeActivite;
+import com.odk.Entity.Utilisateur;
 import com.odk.Repository.TypeActiviteRepository;
+import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.CrudService;
 import com.odk.dto.TypeActiviteDTO;
 import com.odk.dto.TypeActiviteMapper;
@@ -20,10 +22,17 @@ public class TypeActiviteService implements CrudService<TypeActivite, Long> {
 
     private TypeActiviteRepository typeActiviteRepository;
     private TypeActiviteMapper typeActiviteMapper;
+    private UtilisateurRepository utilisateurRepository;
 
 
     @Override
-    public TypeActivite add(TypeActivite typeActivite) {
+    public TypeActivite add(TypeActivite typeActivite) {       
+        return typeActiviteRepository.save(typeActivite);
+    }
+     
+    public TypeActivite addIdUser(Long iduser,TypeActivite typeActivite) {
+        Utilisateur usercreat=utilisateurRepository.findById(iduser).orElse(null);
+        typeActivite.setCreated_by(usercreat);
         return typeActiviteRepository.save(typeActivite);
     }
 
@@ -63,6 +72,16 @@ public class TypeActiviteService implements CrudService<TypeActivite, Long> {
         return typeActiviteRepository.findById(id).map(
                 p -> {
                     p.setType(typeActivite.getType());
+                    return typeActiviteRepository.save(p);
+                }).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "L'id n'existe pas"));
+    }
+
+    public TypeActivite updateId(TypeActivite typeActivite, Long id,Long iduser) {
+        Utilisateur usercreat=utilisateurRepository.findById(iduser).orElse(null);
+        return typeActiviteRepository.findById(id).map(
+                p -> {
+                    p.setType(typeActivite.getType());
+                    p.setCreated_by(usercreat);
                     return typeActiviteRepository.save(p);
                 }).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "L'id n'existe pas"));
     }

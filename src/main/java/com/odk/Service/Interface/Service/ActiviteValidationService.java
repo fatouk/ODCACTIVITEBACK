@@ -44,6 +44,11 @@ public class ActiviteValidationService{
             validation.setFichierChiffre(fichier.getBytes());
             validation.setFichierjoint(fichier.getOriginalFilename());
         }
+        if (dto.getSuperviseurId() != null) {
+        utilisateurRepository.findById(dto.getSuperviseurId()).ifPresent(validation::setSuperviseur);
+    } else {
+        validation.setSuperviseur(null);
+    }
 
         ActiviteValidation saved = validationRepository.save(validation);
         return ActiviteValidationMapper.INSTANCE.toDto(saved);

@@ -54,6 +54,7 @@ public class EtapeService implements CrudService<Etape, Long> {
         // Initialisation des listes si elles ne le sont pas déjà
         dto.setListeDebut(new ArrayList<>());
         dto.setListeResultat(new ArrayList<>());
+        dto.setCreated_by(etape.getCreated_by());
 
         // Conversion des participants
         if (etape.getListeDebut() != null) {
@@ -119,7 +120,6 @@ public class EtapeService implements CrudService<Etape, Long> {
 
     @Override
     public Optional<Etape> findById(Long id) {
-
         return etapeRepository.findById(id);
     }
     @Override

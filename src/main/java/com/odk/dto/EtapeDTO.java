@@ -3,6 +3,7 @@ package com.odk.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.odk.Entity.Critere;
+import com.odk.Entity.Utilisateur;
 import com.odk.Enum.Statut;
 import lombok.Data;
 
@@ -24,6 +25,7 @@ public class EtapeDTO {
     private List<CritereDTO> critere;
     private List<ParticipantDTO> listeDebut;
     private List<ParticipantDTO> listeResultat;
+    private Utilisateur created_by;
 
 
     public EtapeDTO() {

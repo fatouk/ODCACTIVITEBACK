@@ -51,6 +51,15 @@ public interface ActiviteRepository extends JpaRepository<Activite, Long> {
         nativeQuery = true
     )
     List<Activite> findAllBySuperviseurInValidation(@Param("superviseurId") Long superviseurId);
+    
+    @Query(value = """
+    SELECT DISTINCT a.*
+    FROM activite a
+    LEFT JOIN activite_validation av ON av.activite_id = a.id
+    WHERE (av.envoyeur_id = :superviseurId OR av.utilisateur_id = :superviseurId)
+    """, nativeQuery = true)
+    List<Activite> findBySuperviseurIdOrNull(@Param("superviseurId") Long superviseurId);
+    
     @Query(
         value = """
             SELECT DISTINCT a.*

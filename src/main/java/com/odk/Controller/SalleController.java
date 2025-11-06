@@ -22,7 +22,6 @@ public class SalleController {
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public Salle ajouter(@RequestBody Salle salle) {
-
         return salleService.add(salle);
     }
 

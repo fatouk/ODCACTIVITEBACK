@@ -38,7 +38,7 @@ public class ActiviteValidation {
     private Activite activite;
     
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
+    @JoinColumn(name = "utilisateur_id",nullable = true)
     @JsonIgnore
     private Utilisateur superviseur;
    

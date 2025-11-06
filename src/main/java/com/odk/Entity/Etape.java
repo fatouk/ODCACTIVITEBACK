@@ -2,6 +2,7 @@ package com.odk.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.odk.Enum.Statut;
 import jakarta.persistence.*;
@@ -75,7 +76,9 @@ public class Etape {
         inverseJoinColumns = @JoinColumn(name = "critere_id")
     )
     private List<Critere> critere;
-
+    @ManyToOne
+    @JsonIgnore // Ignorer la liste des users lors de la sérialisation de TypeActivite
+    private Utilisateur created_by;
     // Ajoutez un constructeur prenant un ID
 
     public Etape(Long id) {

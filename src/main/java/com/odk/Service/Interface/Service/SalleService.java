@@ -16,8 +16,7 @@ public class SalleService implements CrudService<Salle, Long> {
     private SalleRepository salleRepository;
 
     @Override
-    public Salle add(Salle salle)
-    {
+    public Salle add(Salle salle){
         return salleRepository.save(salle);
     }
 

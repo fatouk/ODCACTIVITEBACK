@@ -2,7 +2,9 @@ package com.odk.Controller;
 
 import com.odk.Entity.Etape;
 import com.odk.Entity.ResponseMessage;
+import com.odk.Entity.Utilisateur;
 import com.odk.Repository.EtapeRepository;
+import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.Service.EtapeService;
 import com.odk.dto.EtapeDTO;
 import com.odk.helper.ExcelHelper;
@@ -15,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,17 +27,25 @@ public class EtapeController {
 
     private EtapeService etapeService;
     private EtapeRepository etapeRepository;
+    private UtilisateurRepository utilisateurRepository;
 
 
-//    @PostMapping("/ajout")
-//    @ResponseStatus(HttpStatus.CREATED)
-////    public ResponseEntity<List<Etape>> addEtapes(@RequestBody List<Etape> etapes) {
-////        List<Etape> savedEtapes = etapes.stream()
-////                .map(etapeRepository::save)
-////                .collect(Collectors.toList());
-////        return ResponseEntity.ok(savedEtapes);
-////    }
-///
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<List<Etape>> addEtapes2(@PathVariable Long id, @RequestBody List<Etape> etapes) {
+    Utilisateur userCreated = utilisateurRepository.findById(id).orElse(null);
+
+        List<Etape> savedEtapes = etapes.stream()
+        .peek(etape -> {
+            etape.setCreated_by(userCreated); // Peut être null si non trouvé
+            etape.mettreAJourStatut();       // Met à jour le statut avant sauvegarde
+        })
+        .map(etapeRepository::save)
+        .collect(Collectors.toList());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEtapes);
+}
+
     @PostMapping
     @PreAuthorize("hasRole('PERSONNEL')")
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,19 +63,28 @@ public class EtapeController {
     @GetMapping
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.OK)
-
     public ResponseEntity<List<EtapeDTO>> getAllEtapes() {
         List<EtapeDTO> letap=etapeService.getAllEtapes();
-        System.out.println("mes etapes==============="+ letap);
+//        System.out.println("mes etapes==============="+ letap);
         return ResponseEntity.ok(letap); // Utilise le service pour récupérer les étapes sous forme de DTO
     }
 
+    @PatchMapping("/{id}/{iduser}")
+    @PreAuthorize("hasRole('PERSONNEL')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Etape> Modifier(@PathVariable Long id,@PathVariable Long iduser, @RequestBody Etape etape ){
+//        System.out.println("modi=====etape======"+etape.getCritere());
+        etape.setCreated_by(utilisateurRepository.findById(iduser).get());
+        Etape updateEtape =etapeService.update(etape,id);
+        return ResponseEntity.ok(updateEtape);
+    }
+    
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('PERSONNEL')")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Etape> Modifier(@PathVariable Long id, @RequestBody Etape etape ){
-
-      Etape updateEtape =  etapeService.update(etape,id);
+//        System.out.println("modi=====etape======"+etape.getCritere());
+        Etape updateEtape=etapeService.update(etape,id);
         return ResponseEntity.ok(updateEtape);
     }
 

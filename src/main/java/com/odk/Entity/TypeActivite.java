@@ -20,8 +20,11 @@ public class TypeActivite {
 
     @ManyToMany(mappedBy = "typeActivitesIds")
     @JsonIgnore // Ignorer la liste des entités lors de la sérialisation de TypeActivite
-
     private List<Entite> entites;
+    
+    @ManyToOne
+//    @JsonIgnore // Ignorer la liste des users lors de la sérialisation de TypeActivite
+    private Utilisateur created_by;
 
     public TypeActivite(Long id) {
         this.id = id;

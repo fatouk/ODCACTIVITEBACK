@@ -223,8 +223,9 @@ public class ActiviteController {
                 validation.getStatut(),       // doit être StatutValidation
                 validation.getFichierjoint(),
                 validation.getEnvoyeurId(),
-                activite.getId(),             // activiteId
-                validation.getSuperviseur().getId())).toList();
+                activite.getId(),
+                (validation.getSuperviseur()!=null) ? validation.getSuperviseur().getId() :null
+                )).toList();
 
         // Créer le DTO de l'activité en incluant la liste mappée
         return new ActiviteDTO(

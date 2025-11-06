@@ -232,7 +232,9 @@ public void envoiMail(Activite activiteCree){
         activiteOptional.ifPresent(activite -> activiteRepository.delete(activite));
     }
     public List<Activite> getActivitesBySuperviseur(Long superviseurId) {
-    return activiteRepository.findAllBySuperviseurInValidation(superviseurId);
+        System.out.println("je suisssssssss dans fonction===="+superviseurId);       
+        return activiteRepository.findBySuperviseurIdOrNull(superviseurId);    
+
 }
    public List<Activite> getActivitesBySuperviseurAttente(Long superviseurId) {
     return activiteRepository.findAttenteBySuperviseurInValidation(superviseurId);
