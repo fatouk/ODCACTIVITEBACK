@@ -23,4 +23,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ResponseMessage("Une erreur interne s'est produite : " + ex.getMessage()));
     }
+    
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDuplicateEntry(Exception ex) {
+    return ResponseEntity
+            .badRequest()
+            .body("Ce nom existe déjà. Veuillez en choisir un autre.");
+}
 }

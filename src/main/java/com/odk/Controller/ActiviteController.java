@@ -114,6 +114,7 @@ public class ActiviteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('PERSONNEL')")
     public ResponseEntity<Map<String, String>> deleteActivite(@PathVariable Long id) {
         activiteService.delete(id);
 

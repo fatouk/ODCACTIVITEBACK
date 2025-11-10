@@ -50,6 +50,7 @@ public class Etape {
 //    @ManyToMany(mappedBy = "etapes")
 //    @JsonBackReference
 //    private List<Activite> activites = new ArrayList<>();
+    
 
     public void addParticipantsToListeDebut(List<Participant> participants) {
         for (Participant participant : participants) {

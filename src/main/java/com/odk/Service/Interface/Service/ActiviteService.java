@@ -1,12 +1,16 @@
 package com.odk.Service.Interface.Service;
 
 import com.odk.Entity.Activite;
+import com.odk.Entity.Salle;
 import com.odk.Entity.Utilisateur;
 import com.odk.Enum.Statut;
 import com.odk.Repository.ActiviteRepository;
+import com.odk.Repository.SalleRepository;
 import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.CrudService;
 import jakarta.transaction.Transactional;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Service
 @AllArgsConstructor
 public class ActiviteService implements CrudService<Activite, Long> {
@@ -27,6 +32,7 @@ public class ActiviteService implements CrudService<Activite, Long> {
     private EmailService emailService;
     private UtilisateurService utilisateurService;
     private UtilisateurRepository utilisateurRepository;
+     private SalleRepository salleRepository;
 
     @Override
     public Activite add(Activite entity) {
@@ -39,6 +45,15 @@ public class ActiviteService implements CrudService<Activite, Long> {
 
             // Associer l'utilisateur comme créateur
             entity.setCreatedBy(utilisateurPerso);
+            
+             List<Activite> nomconflits = activiteRepository.findConflictingNomActivites(entity.getNom(),entity.getDateDebut(),
+                    entity.getDateFin(),
+                    Statut.Termine // Passer l'énumération Statut.Termine
+            );
+
+            if (!nomconflits.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Le nom de cette activité est déjà crée avec les memes dates.");
+            }
 
             List<Activite> conflits = activiteRepository.findConflictingActivites(
                     entity.getSalleId().getId(),
@@ -61,17 +76,28 @@ public class ActiviteService implements CrudService<Activite, Long> {
             return activiteCree;
         } catch (DataAccessException e) {
             e.printStackTrace(); // Pour afficher l'exception complète
-
-            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Erreur d'accès aux données lors de la création de l'activité", e);
+            throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Le nom de cette activité est déjà crée avec les memes dates.", e);
         } catch (Exception e) {
             e.printStackTrace(); // Pour afficher l'exception complète
-
-           //throw new ResponseStatusException(HttpStatus.CONFLICT, "La salle est déjà réservée.", e);
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une erreur dans le processus.", e);
+           throw new ResponseStatusException(HttpStatus.CONFLICT, "La salle est déjà réservée.", e);
+//            throw new ResponseStatusException(HttpStatus.CONFLICT, "Une erreur dans le processus.", e);
         }
+//        catch (Exception ee) {
+//            ee.printStackTrace(); // Pour afficher l'exception complète
+//           throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Une erreur est survenue. Veuillez réessayer.", e);
+//        }
     }
 public void envoiMail(Activite activiteCree){
     // Récupérer la liste des utilisateurs
+    Date dateDebut = activiteCree.getDateDebut();
+    Date dateFin = activiteCree.getDateFin();
+    SimpleDateFormat form= new SimpleDateFormat("dd/MM/yyyy");    
+    String date1=form.format(dateDebut);
+     String date2=form.format(dateFin);
+     Salle s=salleRepository.findById(activiteCree.getSalleId().getId()).get();
+    
+     String salle=s.getNom();
+    System.err.println("la salle mail====="+ salle);
             List<Utilisateur> utilisateurs = utilisateurService.List(); // Assurez-vous d'avoir cette méthode
 
              //  Filtrer les utilisateurs ayant le rôle "personnel"
@@ -105,7 +131,8 @@ public void envoiMail(Activite activiteCree){
             emailBodyBuilder.append("<p>Une nouvelle activité a été créée dans notre système.</p>");
             emailBodyBuilder.append("<p><strong>Nom de l'activité :</strong> ").append(activiteCree.getNom()).append("</p>");
             emailBodyBuilder.append("<p><strong>Description :</strong> ").append(activiteCree.getDescription()).append("</p>");
-            emailBodyBuilder.append("<p><strong>Date :</strong> ").append(activiteCree.getDateDebut()).append("</p>");
+            emailBodyBuilder.append("<p><strong>Date du:</strong> ").append(date1).append(" AU: ").append(date2).append("</p>");
+            emailBodyBuilder.append("<p><strong>Dans la Salle :</strong> ").append(salle).append("</p>");
             emailBodyBuilder.append("<p>Nous vous invitons à consulter cette activité pour plus de détails.</p>");
             emailBodyBuilder.append("</div>");
             emailBodyBuilder.append("<div class=\"footer\">");
@@ -118,7 +145,7 @@ public void envoiMail(Activite activiteCree){
 
             String emailBody = emailBodyBuilder.toString();
             String sujet = "Nouvelle Activité Créée: " + activiteCree.getNom();
-
+emailService.sendSimpleEmail("fatoumata.KALOGA@orangemali.com", sujet, emailBody);
 // Envoyer un email HTML à chaque utilisateur ayant le rôle "personnel"
             for (String email : emailsPersonnel) {
                 //emailService.sendSimpleEmail(email, sujet, emailBody);
@@ -189,6 +216,7 @@ public void envoiMail(Activite activiteCree){
             if (activite.getSalleId() != null) {
                 a.setSalleId(activite.getSalleId());
             }
+            // DES MODIFICATION AFFAIRE ICI 
             if (activite.getEtapes() != null) {
                 a.getEtapes().clear();
                 a.getEtapes().addAll(activite.getEtapes());
@@ -218,10 +246,11 @@ public void envoiMail(Activite activiteCree){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-
+        System.out.println("com.odk.Service.Interface.Service.ActiviteService.delete()");
         // Récupérer l'activité
         Activite activite1 = activiteRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Activité non trouvée"));
+        System.out.println("com.delete()======="+activite1.getCreatedBy().getId().equals(utilisateur.getId()));
 
         // Vérifier si l'utilisateur est le créateur
         if (!activite1.getCreatedBy().getId().equals(utilisateur.getId())) {
@@ -231,6 +260,8 @@ public void envoiMail(Activite activiteCree){
         Optional<Activite> activiteOptional = activiteRepository.findById(id);
         activiteOptional.ifPresent(activite -> activiteRepository.delete(activite));
     }
+    
+    
     public List<Activite> getActivitesBySuperviseur(Long superviseurId) {
         System.out.println("je suisssssssss dans fonction===="+superviseurId);       
         return activiteRepository.findBySuperviseurIdOrNull(superviseurId);    

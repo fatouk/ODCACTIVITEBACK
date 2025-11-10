@@ -41,6 +41,16 @@ public interface ActiviteRepository extends JpaRepository<Activite, Long> {
            @Param("statutTermine") com.odk.Enum.Statut statutTermine
    );
 
+   @Query("SELECT a FROM Activite a " +
+       "WHERE LOWER(a.nom) = LOWER(:nom) " +
+       "AND ((:dateDebut < a.dateFin AND :dateFin > a.dateDebut)) " +
+       "AND a.statut <> :statutTermine")
+List<Activite> findConflictingNomActivites(
+       @Param("nom") String nom,
+       @Param("dateDebut") Date dateDebut,
+       @Param("dateFin") Date dateFin,
+       @Param("statutTermine") com.odk.Enum.Statut statutTermine);
+   
  @Query(
         value = """
             SELECT DISTINCT a.*
