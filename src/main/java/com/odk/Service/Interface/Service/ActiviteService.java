@@ -145,10 +145,11 @@ public void envoiMail(Activite activiteCree){
 
             String emailBody = emailBodyBuilder.toString();
             String sujet = "Nouvelle Activité Créée: " + activiteCree.getNom();
-emailService.sendSimpleEmail("fatoumata.KALOGA@orangemali.com", sujet, emailBody);
+//emailService.sendSimpleEmail("fatoumata.KALOGA@orangemali.com", sujet, emailBody);
 // Envoyer un email HTML à chaque utilisateur ayant le rôle "personnel"
             for (String email : emailsPersonnel) {
-                //emailService.sendSimpleEmail(email, sujet, emailBody);
+                System.out.println("envoi mail====="+email);
+                emailService.sendSimpleEmail(email, sujet, emailBody);
             }
 }
 
