@@ -184,7 +184,7 @@ public class EtapeService implements CrudService<Etape, Long> {
     @Transactional
     public void addParticipantsToEtape(Long id, MultipartFile file, boolean toListeDebut) throws IOException {
         // Log de débogage
-        System.out.println("toListeDebut : " + toListeDebut);
+//        System.out.println("toListeDebut : " + toListeDebut);
 
         // Convertir le fichier Excel en une liste de participants
         List<Participant> participants = ExcelHelper.excelToTutorials(file, activiteRepository, activiteParticipantRepository, participantRepository);

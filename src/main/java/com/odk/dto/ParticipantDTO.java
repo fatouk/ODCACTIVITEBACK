@@ -2,6 +2,7 @@ package com.odk.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.odk.Entity.Activite;
+import com.odk.Entity.Liste;
 import com.odk.Entity.Participant;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class ParticipantDTO {
     private Activite activite; // Ajoutez le nom de l'activité
     private boolean checkedIn;
     private LocalDateTime checkInTime;
+     private Liste liste;
 
     public ParticipantDTO(Long id, String nom, String prenom, String email, String phone, String genre, boolean checkedIn, LocalDateTime checkInTime) {
         this.id = id;
@@ -43,6 +45,7 @@ public class ParticipantDTO {
         this.activite = participant.getActivite();
         this.checkedIn = participant.isCheckedIn();
         this.checkInTime = participant.getCheckInTime();
+        this.liste= participant.getListe();
 
     }
 

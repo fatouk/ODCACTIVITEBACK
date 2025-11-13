@@ -44,7 +44,8 @@ public class Etape {
     private Statut statut;
 
     @OneToMany(mappedBy = "etape", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("etape-liste")  // Doit correspondre à `@JsonBackReference`
+    @JsonManagedReference("listeRef")
+//    @JsonManagedReference("etape-liste")  // Doit correspondre à `@JsonBackReference`
     private Set<Liste> liste = new HashSet<>();
 
 //    @ManyToMany(mappedBy = "etapes")

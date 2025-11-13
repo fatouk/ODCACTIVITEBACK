@@ -25,6 +25,7 @@ public class EtapeDTO {
     private List<CritereDTO> critere;
     private List<ParticipantDTO> listeDebut;
     private List<ParticipantDTO> listeResultat;
+    private List<ListeDTO> liste;
     private Utilisateur created_by;
 
 

@@ -44,8 +44,11 @@ public class Participant{
 
     @ManyToOne
     @JoinColumn(name = "liste_id")
-    @JsonBackReference("listeRef")
+    @JsonBackReference
+//    @JsonBackReference("listeRef")
     private Liste liste;
+    
+     
 
     // Ajoutez un constructeur prenant un ID
     public Participant(Long id) {

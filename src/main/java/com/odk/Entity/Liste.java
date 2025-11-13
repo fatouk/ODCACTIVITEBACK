@@ -27,7 +27,8 @@ public class Liste {
 
     @ManyToOne
     @JoinColumn(name = "etape_id")
-    @JsonBackReference("etape-liste")  // Doit correspondre à `@JsonManagedReference`
+    @JsonBackReference("listeRef")
+//    @JsonBackReference("etape-liste")// Doit correspondre à `@JsonManagedReference`
     private Etape etape;
 
     // Ajoutez un constructeur prenant un ID

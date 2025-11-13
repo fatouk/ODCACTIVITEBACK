@@ -89,17 +89,18 @@ public class ExcelHelper {
             participant.setNom(row.getCell(0).getStringCellValue());
             participant.setPrenom(row.getCell(1).getStringCellValue());
             participant.setEmail(row.getCell(2).getStringCellValue());
+            participant.setGenre(row.getCell(3).getStringCellValue());
             // Vérifiez si la cellule du téléphone est de type numérique ou chaîne
             if (row.getCell(3).getCellType() == CellType.NUMERIC) {
                 // Si c'est un nombre, on le convertit en String
-                participant.setPhone(String.valueOf((int) row.getCell(3).getNumericCellValue()));
-            } else if (row.getCell(3).getCellType() == CellType.STRING) {
+                participant.setPhone(String.valueOf((int) row.getCell(4).getNumericCellValue()));
+            } else if (row.getCell(4).getCellType() == CellType.STRING) {
                 // Si c'est déjà une chaîne de caractères
-                participant.setPhone(row.getCell(3).getStringCellValue());
+                participant.setPhone(row.getCell(4).getStringCellValue());
             } else {
                 throw new RuntimeException("Type de cellule inattendu pour le téléphone");
             }
-            participant.setGenre(row.getCell(4).getStringCellValue());
+          
 
             // Vérification si la cellule de l'activité est non nulle et de type chaîne
 //            if (row.getCell(5) != null && row.getCell(5).getCellType() == CellType.STRING) {
@@ -110,7 +111,7 @@ public class ExcelHelper {
                 Optional<Activite> activiteOptional = activiteRepository.findByNomIgnoreCase(nomActivite); //Comparaison insensible a la case.
 
                 if (activiteOptional.isPresent()) {
-                    System.out.println(activiteOptional.get().getNom());
+//                    System.out.println(activiteOptional.get().getNom());
                     participant.setActivite(activiteOptional.get());
 
                     // Enregistrez le participant d'abord pour obtenir un ID valide
