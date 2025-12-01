@@ -7,15 +7,15 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-@Mapper(componentModel = "spring")
+@Mapper
 public interface ParticipantMapper {
 
-//    ParticipantMapper INSTANCE = Mappers.getMapper(ParticipantMapper.class);
+    ParticipantMapper INSTANCE = Mappers.getMapper(ParticipantMapper.class);
 
     // Convert Mission entity to DTO
 //    @Mapping(source = "etapeDebut", target = "etapeDebut", ignore = true)
-//    @Mapping(source = "activite.id",target = "activite")
-    @Mapping(source = "liste.id", target = "liste")
+    @Mapping(target = "activite")
+//    @Mapping(source = "etapeResultat", target = "etapeResultat")
     ParticipantDTO PARTICIPANT_DTO(Participant participant);
 
     List<ParticipantDTO> ListParticpant(List<Participant> participants);

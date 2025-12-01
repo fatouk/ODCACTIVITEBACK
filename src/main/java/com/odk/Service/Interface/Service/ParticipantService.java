@@ -9,15 +9,12 @@ import com.odk.Repository.UtilisateurRepository;
 import com.odk.Service.Interface.CrudService;
 import com.odk.Utils.UtilService;
 import com.odk.dto.ParticipantDTO;
-import com.odk.dto.ParticipantMapper;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,11 +25,10 @@ public class ParticipantService implements CrudService<Participant, Long> {
 
     private ParticipantRepository participantRepository;
     private UtilisateurRepository utilisateurRepository;
-//    private PasswordEncoder passwordEncoder;
+    //    private PasswordEncoder passwordEncoder;
 //    private RoleRepository roleRepository;
 //    private ActiviteParticipantService activiteParticipantService;
     private ActiviteRepository activiteRepository;
-    private final ParticipantMapper participantMapper;
 
     @Override
     public Participant add(Participant entity) {
@@ -69,7 +65,7 @@ public class ParticipantService implements CrudService<Participant, Long> {
 
     public List<ParticipantDTO> listParticipant() {
         return participantRepository.findAll().stream()
-                .map(participantMapper::PARTICIPANT_DTO)
+                .map(ParticipantDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -78,26 +74,6 @@ public class ParticipantService implements CrudService<Participant, Long> {
         return participantRepository.findById(id);
     }
 
-    public List<Participant> findByCritere(LocalDate dateDebut, LocalDate dateFin,Long activiteId,Long entiteId) {
-//       if(entiteId!=0 || entiteId!=null){
-//           System.out.println("CRITERE ENTITE++++"+entiteId);
-//           return participantRepository.findParCritereCustom1(entiteId);
-//}
-//           if((entiteId!=0 || entiteId!=null)&& (activiteId!=0 || activiteId!=null)){
-//                System.out.println("CRITERE ENTITE et activite++++"+entiteId+"=="+activiteId);
-//                return participantRepository.findParCritereCustom2(activiteId,entiteId);
-//
-//           }
-//               if((entiteId!=0 || entiteId!=null)&& (activiteId!=0 || activiteId!=null) &&(dateDebut!=null) ){
-//                return participantRepository.findParCritereCustom3(dateDebut,activiteId,entiteId);
-//
-//               }
-            return participantRepository.searcDynamic(dateDebut,dateFin,activiteId,entiteId);
- 
-           
-       
-    }
-    
     @Override
     public Participant update(Participant participant, Long id) {
         Optional<Participant> optionalParticipant = participantRepository.findById(id);
@@ -107,7 +83,7 @@ public class ParticipantService implements CrudService<Participant, Long> {
             participantUpdate.setEmail(participantUpdate.getEmail());
             participantUpdate.setPrenom(participantUpdate.getPrenom());
             participantUpdate.setPhone(participantUpdate.getPhone());
-           return participantRepository.save(participant);
+            return participantRepository.save(participant);
         }
         return null;
     }

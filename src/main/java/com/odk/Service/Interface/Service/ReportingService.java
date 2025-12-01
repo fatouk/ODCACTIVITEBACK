@@ -1,48 +1,58 @@
 package com.odk.Service.Interface.Service;
 
-import com.odk.Entity.StatistiqueGenre;
-import com.odk.Repository.ActiviteParticipantRepository;
 import com.odk.Repository.ParticipantRepository;
+import com.odk.dto.ReportingDTO;
+import com.odk.Entity.Participant;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class ReportingService {
-    private ActiviteParticipantRepository activiteParticipantRepository;
-    private ParticipantRepository participantRepository;
 
-    public List<StatistiqueGenre> StatistiquesParGenre() {
-        // Utilisez une requête personnalisée ou QueryDSL
-        return activiteParticipantRepository.StatistiquesParGenre();
+    private final ParticipantRepository participantRepository;
+
+    public List<ReportingDTO> getAllParticipants() {
+        return participantRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<StatistiqueGenre> StatistiquesParGenreHomme() {
-        // Utilisez une requête personnalisée ou QueryDSL
-        return activiteParticipantRepository.StatistiquesParGenre();
+    public List<ReportingDTO> getParticipantsFiltered(Long entiteId, Long activiteId) {
+        return participantRepository.findAll().stream()
+                .filter(p -> {
+                    boolean okEntite = entiteId == null ||
+                            (p.getActivite() != null &&
+                                    p.getActivite().getEntite() != null &&
+                                    p.getActivite().getEntite().getId().equals(entiteId));
+
+                    boolean okActivite = activiteId == null ||
+                            (p.getActivite() != null &&
+                                    p.getActivite().getId().equals(activiteId));
+
+                    return okEntite && okActivite;
+                })
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Map<String, Object> getParticipantStatistics() {
-        Map<String, Object> stats = new HashMap<>();
-
-        // Nombre total d'étapes
-        stats.put("total", participantRepository.countTotal());
-
-        // Année en cours
-        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        stats.put("currentYear", currentYear);
-
-        // Nombre d'étapes pour l'année en cours
-        stats.put("countForCurrentYear", participantRepository.countByCurrentYear(currentYear));
-
-        return stats;
+    private ReportingDTO mapToDTO(Participant p) {
+        return new ReportingDTO(
+                p.getNom(),
+                p.getPrenom(),
+                p.getEmail(),
+                p.getPhone(),
+                p.getGenre(),
+                p.getActivite() != null ? p.getActivite().getNom() : "",
+                p.getActivite() != null && p.getActivite().getEntite() != null
+                        ? p.getActivite().getEntite().getNom()
+                        : "",
+                p.getAge(),
+                p.getActivite() != null ? p.getActivite().getDateDebut() : null,
+                p.getActivite() != null ? p.getActivite().getDateFin() : null
+        );
     }
-
-
 }

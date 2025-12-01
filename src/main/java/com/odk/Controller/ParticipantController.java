@@ -3,15 +3,12 @@ package com.odk.Controller;
 import com.odk.Entity.Activite;
 import com.odk.Entity.ActiviteParticipant;
 import com.odk.Entity.ActiviteParticipantKey;
-import com.odk.Entity.Liste;
 import com.odk.Entity.Participant;
 import com.odk.Repository.ActiviteParticipantRepository;
 import com.odk.Repository.BlackListRepository;
 import com.odk.Service.Interface.Service.BlackListService;
-import com.odk.Service.Interface.Service.ListeService;
 import com.odk.Service.Interface.Service.ParticipantService;
 import com.odk.dto.ParticipantDTO;
-import java.sql.Date;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,16 +27,12 @@ public class ParticipantController {
     private ParticipantService participantService;
     private ActiviteParticipantRepository activiteParticipantRepository;
     private BlackListService blackListService;
-    private ListeService listeService;
-    
 
 
     @PostMapping
     @PreAuthorize("hasRole('PERSONNEL')")
     @ResponseStatus(HttpStatus.CREATED)
     public Participant ajouter(@RequestBody Participant participant, Activite activite){
-        Liste liste=new Liste();
-//        liste.setEtape(participant);
         Participant savedParticipant = participantService.addP(participant, activite.getId());
         // Créez la clé pour ActiviteParticipant
         ActiviteParticipantKey key = new ActiviteParticipantKey(activite.getId(), savedParticipant.getId());
@@ -55,7 +48,7 @@ public class ParticipantController {
     @GetMapping
     @PreAuthorize("hasRole('PERSONNEL') or hasRole('SUPERADMIN')")
     @ResponseStatus(HttpStatus.OK)
-    public List<ParticipantDTO> ListerParticipant(){
+    public List<ParticipantDTO> ListerEntite(){
         return participantService.listParticipant();
     }
 
@@ -65,19 +58,7 @@ public class ParticipantController {
     public Optional<Participant> getParticipantParId(@PathVariable Long id){
         return participantService.findById(id);
     }
-    @GetMapping("/critere")
-    @PreAuthorize("hasRole('PERSONNEL')or hasRole('SUPERADMIN')")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Participant> getParticipantParCriteres(@RequestParam(required = false) LocalDate dateDebut,@RequestParam(required = false) LocalDate dateFin,@RequestParam(required = false) Long activiteId,@RequestParam(required = false) Long entiteId){
-        System.out.println("find by critere======"+dateDebut+"  ,"+dateFin+", "+activiteId+",  "+entiteId);
-//        Pourque la requette puisse correspondre
-        if (dateFin != null) {
-        dateFin = dateFin.plusDays(1);
-        }
-        return participantService.findByCritere(dateDebut,dateFin,activiteId,entiteId);
-    }
-    
-    
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('PERSONNEL')")
     @ResponseStatus(HttpStatus.CREATED)
